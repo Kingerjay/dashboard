@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom'
 
 const Sidebar = () => {
   return (
-    <div className='w-[306px] h-screen border-r-1 border-[rgba(44,44,44,1)] px-5 pt-17'>
+    <div className='w-[306px] h-screen border-r-1 border-[rgba(44,44,44,1)] px-5 pt-18'>
       <h1 className="text-xl font-bold pl-[3rem]">LOGO</h1>
 
       <ul className="mt-[6rem] space-y-2 font-medium text-sm">
