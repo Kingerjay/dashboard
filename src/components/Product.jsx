@@ -13,6 +13,7 @@ import { IoMdArrowDropdown } from 'react-icons/io';
 import { FaPlus } from 'react-icons/fa';
 import AddProductModal from './AddProductModal';
 import EditProductModal from './EditProductModal';
+import Pagination from './Pagination';
 
 const Product = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,6 +22,9 @@ const Product = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Number of items to show per page
+
 
   // Load products from localStorage or use initial data
   const [products, setProducts] = useState(() => {
@@ -161,6 +165,15 @@ const Product = () => {
     product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Calculate total pages
+const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  // Paginate products
+const paginatedProducts = filteredProducts.slice(
+  (currentPage - 1) * itemsPerPage, 
+  currentPage * itemsPerPage
+);
+
 
   return (
     <div className='w-full '>
@@ -242,12 +255,12 @@ const Product = () => {
           </tr>
         </thead>
       <tbody>
-        {products.length === 0 ? (
+        {paginatedProducts.length === 0 ? (
             <div className="w-full h-full p-6 text-gray-500">
                         <p className='text-center'>No Product yet</p>
                     </div>
         ) : (
-        products?.map((product, index) => (
+        paginatedProducts?.map((product, index) => (
           <tr key={index} className=" text-left even:bg-[rgba(44,44,44,1)]">
             <td className="h-[60px] px-4">
             <div className="flex items-center gap-4">
@@ -291,6 +304,12 @@ const Product = () => {
         )))}
       </tbody>
       </table>
+
+      <Pagination 
+        totalPages={totalPages} 
+        currentPage={currentPage} 
+        onPageChange={setCurrentPage}
+      />
      </div>
 
     
