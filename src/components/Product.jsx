@@ -14,6 +14,8 @@ import { FaPlus } from 'react-icons/fa';
 import AddProductModal from './AddProductModal';
 import EditProductModal from './EditProductModal';
 import Pagination from './Pagination';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
+import ProductDetails from './ProductDetails';
 
 const Product = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +24,8 @@ const Product = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState(null);
+  const [productDetails, setProductDetails] = useState(null);
+  const [productToView, setProductToView] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // Number of items to show per page
 
@@ -151,6 +155,14 @@ const Product = () => {
     setProductToDelete(null);
   }
 
+  // Product Details Modal
+  const handleProductDetails = (productId) => {
+    setProductToView(productId);
+    setProductDetails(true);
+    
+  };
+
+
 
   // Handle search
   const handleSearch = (e) => {
@@ -261,46 +273,77 @@ const paginatedProducts = filteredProducts.slice(
                     </div>
         ) : (
         paginatedProducts?.map((product, index) => (
-          <tr key={index} className=" text-left even:bg-[rgba(44,44,44,1)]">
-            <td className="h-[60px] px-4">
-            <div className="flex items-center gap-4">
-              <img 
-                src={product.image} 
-                alt="" 
-                className="w-8 h-8 rounded-full "
-              />
-              {product.id}
-            </div>
-          </td>
-            <td className="py-2 px-4">{product.sku}</td>
-            <td className="py-2 px-4">{product.name}</td>
-            <td className="py-2 px-4">{product.quantity}</td>
-            <td className="py-2 px-4">{product.price}</td>
-            <td className="py-2 px-4">
-              <div className='flex gap-1 items-center'>
-              <img src={location} alt="" />
-              {product.location}
-              </div>
+          <tr 
+              key={index} 
+              className="cursor-pointer text-left even:bg-[rgba(44,44,44,1)]"
+            >
+              <td 
+                onClick={() => handleProductDetails(product.id)} 
+                className="h-[60px] px-4"
+              >
+                <div className="flex items-center gap-4">
+                  <img 
+                    src={product.image} 
+                    alt="" 
+                    className="w-8 h-8 rounded-full"
+                  />
+                  {product.id}
+                </div>
               </td>
-            <td className="h-[53px] px-4 flex justify-center items-center gap-4">
-
-              {/* Edit Button */}
-              <button 
-              className=""
-              onClick={() => handleEditClick(product)}
+              <td 
+                onClick={() => handleProductDetails(product.id)}
+                className="py-2 px-4"
               >
-                <img src={editIcon} alt="" />
-              </button>
-
-              {/* Delete Button */}
-              <button 
-              className=""
-              onClick={() => handleDeleteProduct(product.id)}
+                {product.sku}
+              </td>
+              <td 
+                onClick={() => handleProductDetails(product.id)}
+                className="py-2 px-4"
               >
-                <img src={deleteIcon} alt="" />
-              </button>
-            </td>
-          </tr>
+                {product.name}
+              </td>
+              <td 
+                onClick={() => handleProductDetails(product.id)}
+                className="py-2 px-4"
+              >
+                {product.quantity}
+              </td>
+              <td 
+                onClick={() => handleProductDetails(product.id)}
+                className="py-2 px-4"
+              >
+                {product.price}
+              </td>
+              <td 
+                onClick={() => handleProductDetails(product.id)}
+                className="py-2 px-4"
+              >
+                <div className='flex gap-1 items-center'>
+                  <img src={location} alt="" />
+                  {product.location}
+                </div>
+              </td>
+              <td 
+                className="h-[53px] px-4 flex justify-center items-center gap-4"
+                onClick={(e) => e.stopPropagation()} // Prevent product details from opening
+              >
+                {/* Edit Button */}
+                <button 
+                  className=""
+                  onClick={() => handleEditClick(product)}
+                >
+                  <img src={editIcon} alt="" />
+                </button>
+
+                {/* Delete Button */}
+                <button 
+                  className=""
+                  onClick={() => handleDeleteProduct(product.id)}
+                >
+                  <img src={deleteIcon} alt="" />
+                </button>
+              </td>
+            </tr>
         )))}
       </tbody>
       </table>
@@ -334,86 +377,27 @@ const paginatedProducts = filteredProducts.slice(
 
 
       {/* Show Delete Modal */}
-      {deleteModal && (
-        <div className="fixed inset-0 bg-[rgba(44,44,44,0.75)]  flex justify-center items-center z-50">
-          <div className="bg-[rgba(25,26,25,1)] text-white rounded-lg shadow-lg w-[551px] h-[371px] ">
-            <div className="flex flex-col h-full">
+      <DeleteConfirmationModal 
+        isOpen={deleteModal}
+        onClose={() => {
+          setDeleteModal(false);
+          setProductToDelete(null);
+        }}
+        onConfirmDelete={confirmDelete}
+        productToDelete={productToDelete}
+        products={products}
+      />
 
-              {/* Header with warning icon */}
-              <div className="flex items-center gap-2 border-b border-[rgba(44,44,44,1)] px-6 py-4">
-                <div className="w-8 h-8  rounded-full flex items-center justify-center">
-                  <span className=" text-sm">⚠️</span>
-                </div>
-                <h2 className="text-[16px] text-[rgba(253,53,53,1)] font-medium uppercase">DELETE CONFIRMATION</h2>
-              </div>
-              
-              <div className='py-8 px-16'>
-              {/* Confirmation message */}
-              <p className="text-sm font-normal mb-6 ">Are you sure you want to delete this product?</p>
-              
-              {/* Product details */}
-              <div className="">
-                <div className="">
-                  {productToDelete && (
-            <div className="text-sm flex flex-col gap-3">
-              
-              {products
-                .filter((product) => product.id === productToDelete)
-                .map((product) => (
-                  <div 
-                  key={product.id}
-                  className='flex flex-col gap-2 w-[60%]'
-                  >
-                    <div className="grid grid-cols-2">
-                      <p className='text-sm font-medium text-[rgba(122,122,122,1)]'>Product ID:</p>
-                      <p className='text-sm font-normal'>{product.sku}</p>
-                    </div>
-
-                    <div className="grid grid-cols-2 ">
-                      <p className='text-sm font-medium text-[rgba(122,122,122,1)]'>Brand:</p>
-                      <p className='text-sm font-normal'>{product.brand}</p>
-                    </div>
-
-                    <div className="grid grid-cols-2">
-                      <p className='text-sm font-medium text-[rgba(122,122,122,1)]'>Product Name:</p>
-                      <p className='text-sm font-normal'>{product.name || "N/A"}</p>
-                    </div>
-
-                    <div className="grid grid-cols-2">
-                      <p className='text-sm font-medium text-[rgba(122,122,122,1)]'>Category:</p>
-                      <p className='text-sm font-normal'>{product.category}</p>
-                    </div>
-                  </div>
-                ))}
-            </div>
-            )}
-
-                  
-              </div>
-              
-              {/* Buttons */}
-              <div className="flex justify-end gap-4 mt-8">
-                <button 
-                  className="px-6 py-2 border border-[rgba(200,200,200,1)] rounded-md text-[rgba(200,200,200,1)] w-32 font-medium"
-                  onClick={() => setDeleteModal(false)}
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="px-6 py- bg-[#e24d4d] hover:bg-[rgba(253,53,53,1)] text-[rgba(200,200,200,1)] rounded-md w-32 font-medium"
-                  onClick={confirmDelete}
-                >
-                  Delete
-                </button>
-              </div>
-              
-            </div>
-              </div>
-
-          </div>
-        </div>
-        </div>
-      )}
+      {/* Show Product Details */}
+      <ProductDetails 
+      isOpen={productDetails}
+      onClose={() => {
+        setProductDetails(false);
+        setProductToView(null);
+      }}
+      productToView={productToView}
+      products={products}
+      />
 
 
       
