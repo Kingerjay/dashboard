@@ -149,11 +149,19 @@ const Product = () => {
 
   // Confirm Delete
   const confirmDelete = () => {
-    setProducts(prevProducts => prevProducts.filter(product => product.id !== productToDelete));
+  // First filter out the deleted product
+  const remainingProducts = products.filter(product => product.id !== productToDelete);
+  
+  // Then reassign IDs to ensure sequential numbering
+  const updatedProducts = remainingProducts.map((product, index) => ({
+    ...product,
+    id: index + 1
+  }));
 
-    setDeleteModal(false);
-    setProductToDelete(null);
-  }
+  setProducts(updatedProducts);
+  setDeleteModal(false);
+  setProductToDelete(null);
+}
 
   // Product Details Modal
   const handleProductDetails = (productId) => {
